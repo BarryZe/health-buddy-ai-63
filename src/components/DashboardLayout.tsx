@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Activity, TrendingUp, Bot, LogOut } from "lucide-react";
+import { Home, Activity, TrendingUp, Bot, LogOut, Heart, Apple } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "./ui/button";
@@ -30,7 +30,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/workout', icon: Activity, label: 'Workout' },
-    { path: '/progress', icon: TrendingUp, label: 'Progress' },
+    // { path: '/progress', icon: TrendingUp, label: 'Progress' },
+    { path: '/progress', icon: Heart, label: 'Health' },
+    { path: '/progress', icon: Apple, label: 'Nutrition' },
     { path: '/ai-coach', icon: Bot, label: 'AI Coach' },
   ];
 

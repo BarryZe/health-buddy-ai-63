@@ -28,13 +28,28 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) throw new Error('LOVABLE_API_KEY not configured');
 
-    const systemPrompt = type === 'meal' 
-      ? 'You are a nutrition expert. Based on health data and workout history, provide personalized meal recommendations. Be specific and practical.'
-      : 'You are a fitness coach. Based on health data and workout history, provide personalized workout recommendations. Be specific with exercises, sets, and reps.';
+    let systemPrompt = '';
+    let userPrompt = '';
+    let title = '';
 
-    const userPrompt = type === 'meal'
-      ? `Create a meal plan recommendation based on: Health metrics: ${JSON.stringify(healthData)}, Recent workouts: ${JSON.stringify(workoutHistory)}`
-      : `Create a workout plan recommendation based on: Health metrics: ${JSON.stringify(healthData)}, Recent workouts: ${JSON.stringify(workoutHistory)}`;
+    if (type === 'meal') {
+      systemPrompt = 'You are a nutrition expert. Based on health data and workout history, provide personalized meal recommendations. Be specific and practical.';
+      userPrompt = `Create a meal plan recommendation based on: Health metrics: ${JSON.stringify(healthData)}, Recent workouts: ${JSON.stringify(workoutHistory)}`;
+      title = 'AI Meal Plan';
+    } else if (type === 'workout') {
+      systemPrompt = 'You are a fitness coach. Based on health data and workout history, provide personalized workout recommendations. Be specific with exercises, sets, and reps.';
+      userPrompt = `Create a workout plan recommendation based on: Health metrics: ${JSON.stringify(healthData)}, Recent workouts: ${JSON.stringify(workoutHistory)}`;
+      title = 'AI Workout Plan';
+    } else if (type === 'health') {
+      systemPrompt = 'You are a health specialist. Based on health data and recent workouts, provide actionable health recommendations (sleep, stress, general wellbeing, preventative tips). Be specific and practical.';
+      userPrompt = `Create a health recommendation based on: Health metrics: ${JSON.stringify(healthData)}, Recent workouts: ${JSON.stringify(workoutHistory)}`;
+      title = 'AI Health Recommendation';
+    } else {
+      // fallback to a general recommendation
+      systemPrompt = 'You are an expert. Provide general recommendations based on the provided data.';
+      userPrompt = `Create a recommendation based on: Health metrics: ${JSON.stringify(healthData)}, Recent workouts: ${JSON.stringify(workoutHistory)}`;
+      title = 'AI Recommendation';
+    }
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -78,7 +93,7 @@ serve(async (req) => {
       .insert({
         user_id: user.id,
         recommendation_type: type,
-        title: type === 'meal' ? 'AI Meal Plan' : 'AI Workout Plan',
+        title,
         description: recommendation,
         data: { healthData, workoutHistory },
         expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),

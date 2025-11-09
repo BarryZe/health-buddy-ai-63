@@ -5,13 +5,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-import { Bot, Utensils, Dumbbell, Loader2, Sparkles } from "lucide-react";
+import { Bot, Utensils, Dumbbell, Loader2, Sparkles, Heart } from "lucide-react";
 
 const AICoach = () => {
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [loadingMeal, setLoadingMeal] = useState(false);
   const [loadingWorkout, setLoadingWorkout] = useState(false);
+  const [loadingHealth, setLoadingHealth] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
@@ -62,11 +63,13 @@ const AICoach = () => {
     enabled: !!user,
   });
 
-  const generateRecommendation = async (type: 'meal' | 'workout') => {
+  const generateRecommendation = async (type: 'meal' | 'workout' | 'health') => {
     if (type === 'meal') {
       setLoadingMeal(true);
-    } else {
+    } else if (type === 'workout') {
       setLoadingWorkout(true);
+    } else {
+      setLoadingHealth(true);
     }
 
     try {
@@ -81,20 +84,22 @@ const AICoach = () => {
       if (error) throw error;
 
       toast({
-        title: `${type === 'meal' ? 'Meal' : 'Workout'} Plan Ready! ✨`,
+        title: `${type === 'meal' ? 'Meal' : type === 'workout' ? 'Workout' : 'Health'} Recommendation Ready! ✨`,
         description: "Your personalized recommendation has been generated.",
       });
 
       refetch();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       toast({
         variant: "destructive",
         title: "Error generating recommendation",
-        description: error.message,
+        description: message,
       });
     } finally {
       setLoadingMeal(false);
       setLoadingWorkout(false);
+      setLoadingHealth(false);
     }
   };
 
@@ -189,6 +194,39 @@ const AICoach = () => {
               </Button>
             </CardContent>
           </Card>
+          
+          <Card className="bg-gradient-card border-border">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-[hsla(159,84%,44%,0.2)] flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-[hsl(159,84%,44%)]" />
+                </div>
+                <div>
+                  <CardTitle>Health Recommendation</CardTitle>
+                  <CardDescription>General health guidance based on your metrics</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Button
+                onClick={() => generateRecommendation('health')}
+                disabled={loadingHealth}
+                className="w-full bg-[linear-gradient(135deg,hsl(159,84%,44%),hsl(172,66%,50%))] hover:opacity-90"
+              >
+                {loadingHealth ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Health Recommendation
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {recommendations && recommendations.length > 0 && (
@@ -206,8 +244,10 @@ const AICoach = () => {
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold">{rec.title}</h4>
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      rec.recommendation_type === 'meal' 
-                        ? 'bg-secondary/20 text-secondary' 
+                      rec.recommendation_type === 'meal'
+                        ? 'bg-secondary/20 text-secondary'
+                        : rec.recommendation_type === 'health'
+                        ? 'bg-tertiary/20 text-tertiary'
                         : 'bg-primary/20 text-primary'
                     }`}>
                       {rec.recommendation_type}
