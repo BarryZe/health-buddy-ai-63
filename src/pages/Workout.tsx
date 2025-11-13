@@ -175,7 +175,7 @@ const Workout = () => {
                   type="button"
                   size="sm"
                   onClick={addExercise}
-                  className="bg-primary/20 hover:bg-primary/30"
+                  className="bg-primary/20 hover:bg-primary/90"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add

@@ -32,7 +32,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { path: '/workout', icon: Activity, label: 'Workout' },
     // { path: '/progress', icon: TrendingUp, label: 'Progress' },
     { path: '/progress', icon: Heart, label: 'Health' },
-    { path: '/progress', icon: Apple, label: 'Nutrition' },
+    { path: '/nutrition', icon: Apple, label: 'Nutrition' },
     { path: '/ai-coach', icon: Bot, label: 'AI Coach' },
   ];
 
@@ -41,7 +41,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-xl border-b border-border">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            FitTrack
+            PeakForm
           </h1>
           <Button
             variant="ghost"
